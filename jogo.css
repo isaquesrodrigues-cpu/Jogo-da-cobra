@@ -31,3 +31,12 @@ body {
     user-select: none;
 
 }
+.hud {
+    width: 100%;
+    max-width: calc(var(--tamanho-celula)* var(--colunas) + 4px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    gap: 8px;
+}
