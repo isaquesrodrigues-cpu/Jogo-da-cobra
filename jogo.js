@@ -89,6 +89,103 @@ function reiniciar(){
     iniciar();
 }
 
-function tick(){
-    
+function tick() {
+    direcao = { ...proximaDirecao };
+
+    const novaX = cobra[0].x + direcao.x;
+    const novaY = cobra[0].y + direcao.y;
+
+    if (novaX < 0 || novaX >= COLUNAS || novaY < 0 || novaY >= LINHAS) {
+        encerrarJogo();
+        return;
+    }
+    for (let i = 0; i < cobra.length; i++) {
+        if (cobra[i].x === novaX && cobra[i].y === novaY) {
+            encerrarJogo();
+            return;
+        }
+    }
+
+    cobra.unshift({ x: novaX, y: novaY });
+
+    if (novaX === comida.x && novaY === comiday) {
+        pontuacao += PONTOS_POR_COMIDA;
+        atualizarHUD();
+        gerarComida();
+    } else {
+        cobra.pop();
+    }
+
+
+    renderizar();
+
+
 }
+function gerarComida() {
+    let posicaoLivre = false;
+    let novaComida;
+
+    while (!posicaoLivre) {
+        novaComida = {
+            x: Math.floor(Math.random() * COLUNAS),
+            y: Math.floor(Math.random() * LINHAS)
+        };
+
+
+        posicaoLivre = true;
+
+        for (let i = 0; i < cobra.length; i++) {
+            if (cobra[i].x === novaComida.x && cobra[i].y === novaComida.y) {
+                posicaoLivre = false;
+                break;
+            }
+        }
+    }
+    comida = novaComida;
+
+}
+
+function mudarDirecao(tecla) {
+    if (tecla === "arrowup" && direcao.y !== 1) proximaDirecao = { X: 0, y: -1 };
+    if (tecla === "arrowDown" && direcao.y !== -1) proximaDirecao = { X: 0, y: 1 };
+    if (tecla === "arrowLeft" && direcao.y !== 1) proximaDirecao = { X: -1, y: 0 };
+    if (tecla === "arrowRight" && direcao.y !== -1) proximaDirecao = { X: 1, y: 0 };
+}
+
+document.addEventListener("keydown", (evento) => {
+    if (["arrowup", "arrowDown", "arrowLeft", "arrowRight"].includes(evento.key)) {
+        evento.preventDefalt();
+    }
+
+    mudarDirecao(evento.key);
+});
+
+function atualizarHUD() {
+    document.getElementById("pontuacao").textContent = pontuacao;
+    document.getElementById("recorde").textContent = recorde;
+}
+
+function encerrarJogo() {
+    emjogo = false;
+    clearInterval(interval);
+
+    let novoRecorde = false;
+
+    if (pontuacao > recorde) {
+        recorde = pontuacao;
+        localStorage.setItem("cobra_recorde", recorde);
+        novoRecorde = true;
+    }
+    document.getElementById("overlay-pontos").textContent = pontuacao + "pontos";
+    document.getElementById("overlay-recorde").textContent = novoRecorde ? "🏆 Novo recorde!" : "Recorde" + recorde;
+
+    document.getElementById("overlay").classList.add("visivel");
+}
+
+function esconderOverlay() {
+    document.getElementById("overlay").classList.remover("visivel");
+}
+
+criarGrade();
+iniciar();
+
